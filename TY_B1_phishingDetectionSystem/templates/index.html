@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard Pro - AI-Powered Threat Detection</title>
+    <meta name="description" content="Advanced phishing protection and threat detection system">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <button class="logo-btn" data-page="home">
+                <i class="fas fa-shield-alt"></i>
+                <span>PHISHGUARD</span>
+            </button>
+            <div class="nav-links">
+                <button class="nav-btn active" data-page="home">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>HOME</span>
+                </button>
+                <button class="nav-btn" data-page="url">
+                    <i class="fas fa-link"></i>
+                    <span>URL</span>
+                </button>
+                <button class="nav-btn" data-page="email">
+                    <i class="fas fa-envelope"></i>
+                    <span>EMAIL</span>
+                </button>
+                <button class="nav-btn" data-page="message">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>SMS</span>
+                </button>
+                <button class="nav-btn" data-page="dashboard">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>DASHBOARD</span>
+                </button>
+                 <button class="nav-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>LOGOUT</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Page -->
+        <div id="page-home" class="page active">
+            <div class="container">
+                <!-- Hero Section -->
+                <div class="hero-section">
+                    <div class="hero-glow"></div>
+                    <div class="hero-content">
+                        <div class="hero-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h1 class="hero-title">PHISHGUARD PRO</h1>
+                        <p class="hero-subtitle">AI-POWERED THREAT DETECTION</p>
+                        <p class="hero-desc">Advanced phishing protection for the digital age</p>
+                    </div>
+                </div>
+
+                <!-- Scanner  -->
+                <div class="scanner-grid">
+                    <button class="scanner-card" data-page="url">
+                        <i class="fas fa-link"></i>
+                        <h3>URL Scanner</h3>
+                        <p>Analyze suspicious links</p>
+                    </button>
+                    <button class="scanner-card" data-page="email">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email Analyzer</h3>
+                        <p>Detect phishing emails</p>
+                    </button>
+                    <button class="scanner-card" data-page="message">
+                        <i class="fas fa-comment-dots"></i>
+                        <h3>SMS Scanner</h3>
+                        <p>Identify message fraud</p>
+                    </button>
+                </div>
+
+                <!-- Info Cards -->
+                <div class="info-grid">
+                    <div class="info-card threat-card">
+                        <div class="info-header">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h2>THREAT INDICATORS</h2>
+                        </div>
+                        <ul class="info-list">
+                            <li><span>▸</span> Urgent or threatening language</li>
+                            <li><span>▸</span> Requests for sensitive data</li>
+                            <li><span>▸</span> Suspicious links or attachments</li>
+                            <li><span>▸</span> Generic greetings</li>
+                            <li><span>▸</span> Too-good-to-be-true offers</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card security-card">
+                        <div class="info-header">
+                            <i class="fas fa-shield-alt"></i>
+                            <h2>SECURITY PROTOCOL</h2>
+                        </div>
+                        <ul class="info-list">
+                            <li><span>▸</span> Verify sender through official channels</li>
+                            <li><span>▸</span> Enable two-factor authentication</li>
+                            <li><span>▸</span> Never share passwords via email</li>
+                            <li><span>▸</span> Check URLs before clicking</li>
+                            <li><span>▸</span> Report suspicious content</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- URL Scanner Page -->
+        <div id="page-url" class="page">
+            <div class="container-scan">
+                <div class="scan-box">
+                    <div class="scan-header">
+                        <div class="scan-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div>
+                            <h2>URL SECURITY SCANNER</h2>
+                            <p class="scan-subtitle">AI-POWERED THREAT DETECTION</p>
+                        </div>
+                    </div>
+                    <div class="scan-form">
+                        <textarea id="url-input" rows="8" placeholder="Enter URL to analyze (e.g., https://example.com)"></textarea>
+                        <button class="scan-btn" onclick="scanURL()">
+                            <i class="fas fa-search"></i>
+                            <span>INITIATE SCAN</span>
+                        </button>
+                    </div>
+                    <div id="url-result" class="result-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Analyzer Page -->
+        <div id="page-email" class="page">
+            <div class="container-scan">
+                <div class="scan-box">
+                    <div class="scan-header">
+                        <div class="scan-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h2>EMAIL THREAT ANALYZER</h2>
+                            <p class="scan-subtitle">AI-POWERED THREAT DETECTION</p>
+                        </div>
+                    </div>
+                    <div class="scan-form">
+                        <input type="email" id="email-sender" placeholder="Sender Email" class="form-input">
+                        <input type="text" id="email-subject" placeholder="Email Subject" class="form-input">
+                        <textarea id="email-body" rows="6" placeholder="Email Body" class="form-textarea"></textarea>
+                        <button class="scan-btn" onclick="scanEmail()">
+                            <i class="fas fa-search"></i>
+                            <span>INITIATE SCAN</span>
+                        </button>
+                    </div>
+                    <div id="email-result" class="result-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS Scanner Page -->
+        <div id="page-message" class="page">
+            <div class="container-scan">
+                <div class="scan-box">
+                    <div class="scan-header">
+                        <div class="scan-icon">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                        <div>
+                            <h2>SMS SCAM DETECTOR</h2>
+                            <p class="scan-subtitle">AI-POWERED THREAT DETECTION</p>
+                        </div>
+                    </div>
+                    <div class="scan-form">
+                        <textarea id="message-input" rows="8" placeholder="Paste SMS or message content..."></textarea>
+                        <button class="scan-btn" onclick="scanMessage()">
+                            <i class="fas fa-search"></i>
+                            <span>INITIATE SCAN</span>
+                        </button>
+                    </div>
+                    <div id="message-result" class="result-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="page-dashboard" class="page">
+            <div class="container-scan">
+                <div class="scan-box">
+                    <div class="scan-header">
+                        <div class="scan-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <h2>THREAT DASHBOARD</h2>
+                            <p class="scan-subtitle">Security analytics and scan history</p>
+                        </div>
+                    </div>
+                    <div id="dashboard-content"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <i class="fas fa-shield-alt"></i>
+                <h3>PHISHGUARD PRO</h3>
+            </div>
+            <p class="footer-desc">Advanced AI-Powered Threat Detection System</p>
+            <p class="footer-motto">STAY VIGILANT • VERIFY SOURCES • REPORT THREATS</p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <i class="fas fa-sync fa-spin"></i>
+            <span>ANALYZING THREAT VECTORS...</span>
+        </div>
+    </div>
+     
+
+    <!-- <script src="script.js"></script> -->
+</body>
+</html>

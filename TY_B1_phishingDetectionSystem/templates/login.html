@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard Pro - Secure Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sty.css') }}">
+
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <h1>PHISHGUARD</h1>
+            </div>
+            <p class="login-subtitle">AI-POWERED THREAT DETECTION</p>
+        </div>
+
+        <div class="login-box">
+            <div id="alert" class="alert"></div>
+
+            <div class="tab-switcher">
+                <button class="tab-btn active" onclick="switchTab('user')">
+                    <i class="fas fa-user"></i>
+                    <span>USER LOGIN</span>
+                </button>
+                <button class="tab-btn admin-tab" onclick="switchTab('admin')">
+                    <i class="fas fa-user-shield"></i>
+                    <span>ADMIN LOGIN</span>
+                </button>
+            </div>
+
+            <!-- User Login Form -->
+            <form id="user-form" class="login-form active" onsubmit="handleLogin(event, 'user')">
+                <div class="form-group">
+                    <label class="form-label">EMAIL ADDRESS</label>
+                    <div class="form-input-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="user-email" class="form-input" placeholder="Enter your email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">PASSWORD</label>
+                    <div class="form-input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="user-password" class="form-input" placeholder="Enter your password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('user-password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-password" onclick="openForgotPassword('user')">Forgot Password?</a>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-sign-in-alt"></i>  
+                    <span>LOGIN</span>
+                </button>
+
+                <div class="signup-prompt">
+                    Don't have an account? <a href="/register" class="signup-link">Sign up here</a>
+                </div>
+            </form>
+
+            <!-- Admin Login Form -->
+            <form id="admin-form" class="login-form admin-form" onsubmit="handleLogin(event, 'admin')">
+                <div class="form-group">
+                    <label class="form-label">ADMIN USERNAME</label>
+                    <div class="form-input-wrapper">
+                        <i class="fas fa-user-shield input-icon"></i>
+                        <input type="text" id="admin-email" class="form-input" placeholder="Enter admin username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ADMIN PASSWORD</label>
+                    <div class="form-input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="admin-password" class="form-input" placeholder="Enter admin password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('admin-password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox">
+                        <span>Remember device</span>
+                    </label>
+                    <a href="#" class="forgot-password" onclick="openForgotPassword('admin')">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>ADMIN LOGIN</span>
+                </button>
+
+                <div class="security-notice">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Admin access is logged and monitored for security purposes
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3360/api';
+
+        function switchTab(type) {
+            const userTab = document.querySelector('.tab-btn:not(.admin-tab)');
+            const adminTab = document.querySelector('.admin-tab');
+            const userForm = document.getElementById('user-form');
+            const adminForm = document.getElementById('admin-form');
+            const alert = document.getElementById('alert');
+
+            alert.classList.remove('show');
+
+            if (type === 'user') {
+                userTab.classList.add('active');
+                adminTab.classList.remove('active');
+                userForm.classList.add('active');
+                adminForm.classList.remove('active');
+            } else {
+                adminTab.classList.add('active');
+                userTab.classList.remove('active');
+                adminForm.classList.add('active');
+                userForm.classList.remove('active');
+            }
+        }
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${type} show`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        async function handleLogin(event, type) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('.submit-btn');
+            
+            if (type === 'user') {
+                const email = document.getElementById('user-email').value.trim();
+                const password = document.getElementById('user-password').value.trim();
+
+                if (!email || !password) {
+                    showAlert('Please fill in both email and password fields.', 'error');
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>AUTHENTICATING...</span>';
+
+                try {
+                    const response = await fetch(`${API_URL}/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showAlert('Login successful! Redirecting to dashboard...', 'success');
+                        
+                        setTimeout(() => {
+                            // Redirect to user dashboard
+                            window.location.href = '/index';
+                        }, 1500);
+                    } else {
+                        showAlert(data.message || 'Login failed. Please try again.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>LOGIN</span>';
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showAlert('Connection error. Please check if the server is running.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>LOGIN</span>';
+                }
+
+            } else {
+                const username = document.getElementById('admin-email').value.trim();
+                const password = document.getElementById('admin-password').value.trim();
+
+                if (!username || !password) {
+                    showAlert('Please fill in both username and password fields.', 'error');
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>AUTHENTICATING...</span>';
+
+                try {
+                    const response = await fetch(`${API_URL}/admin/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showAlert('Admin authentication successful! Redirecting...', 'success');
+                        
+                        setTimeout(() => {
+                            // Redirect to admin dashboard
+                            window.location.href = '/admin';
+                        }, 1500);
+                    } else {
+                        showAlert(data.message || 'Admin login failed.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-shield-alt"></i><span>ADMIN LOGIN</span>';
+                    }
+                } catch (error) {
+                    console.error('Admin login error:', error);
+                    showAlert('Connection error. Please check if the server is running.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-shield-alt"></i><span>ADMIN LOGIN</span>';
+                }
+            }
+        }
+     
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key === 'a') {
+                e.preventDefault();
+                switchTab('admin');
+            }
+        });
+
+function openForgotPassword() {
+    document.getElementById("forgotModal").style.display = "flex";
+}
+
+function closeForgot() {
+    document.getElementById("forgotModal").style.display = "none";
+    document.getElementById("fp-email").value = "";
+    document.getElementById("fp-msg").innerText = "";
+}
+
+async function sendOTP() {
+    const email = document.getElementById("fp-email").value.trim();
+    const msg = document.getElementById("fp-msg");
+
+    if (!email) {
+        msg.innerText = "Please enter your email";
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/send-reset-otp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+        msg.innerText = data.message;
+    } catch {
+        msg.innerText = "Server error. Try again.";
+    }
+}
+
+    </script>
+
+<!-- Forgot Password Modal -->
+<div id="forgotModal" class="fp-modal" style="display: none;">
+    <div class="fp-box">
+        <h3>Forgot Password</h3>
+        <p>Enter your registered email</p>
+
+        <input type="email" id="fp-email" placeholder="Enter email">
+        <button onclick="sendOTP()">Send OTP</button>
+
+        <p id="fp-msg"></p>
+        <span class="fp-close" onclick="closeForgot()">×</span>
+    </div>
+</div>
+
+</body>
+</html>
