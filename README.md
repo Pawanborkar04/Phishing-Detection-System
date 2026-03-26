@@ -18,8 +18,11 @@ Frontend: HTML5, CSS3, JavaScript (Bootstrap)
 Tools: Git, GitHub, MySQL Workbench
 
 # 📂 Project Structure
+
 ├── app.py              # Main Flask application logic
+
 ├── database/           # SQL scripts for table schema
+
 ├── static/             # CSS, JS, and image assets
 ├── templates/          # HTML templates (User & Admin Dashboards)
 └── requirements.txt    # List of Python dependencies
