@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard Pro - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+
+<!-- NAV -->
+<nav class="admin-nav">
+    <div class="nav-container">
+        <div class="nav-brand">
+            <i class="fas fa-shield-alt"></i>
+            <h1>PHISHGUARD PRO</h1>
+            <span class="admin-badge">ADMIN</span>
+        </div>
+
+        <div class="nav-actions">
+            <div class="nav-time">
+                <i class="fas fa-clock"></i>
+                <span id="current-time"></span>
+            </div>
+
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                LOGOUT
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<main class="admin-content">
+
+    <div class="page-header">
+        <h1 class="page-title">ADMIN DASHBOARD</h1>
+        <p class="page-subtitle">System monitoring & analytics</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="total-scans">--</div>
+            <div class="stat-label">Total Scans</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value" id="total-threats">--</div>
+            <div class="stat-label">Threats Detected</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value" id="total-users">--</div>
+            <div class="stat-label">Active Users</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value" id="detection-accuracy">--</div>
+            <div class="stat-label">Detection Accuracy</div>
+        </div>
+    </div>
+
+    <!-- ACTIVITY -->
+    <section class="section-card">
+        <h2 class="section-title"><i class="fas fa-history"></i> Recent Activity</h2>
+        <div id="activity-timeline">Loading...</div>
+    </section>
+
+
+    <!-- USERS -->
+    <section class="section-card">
+        <h2 class="section-title"><i class="fas fa-users"></i> Users</h2>
+
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Joining Date</th>
+                    <th>Last Active</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="users-tbody">
+                <tr><td colspan="5">Loading...</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+<script>
+const API = "http://localhost:3360/api";
+
+/* ---------------- TIME ---------------- */
+function updateTime() {
+    document.getElementById("current-time").textContent =
+        new Date().toLocaleTimeString();
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+/* ---------------- STATS ---------------- */
+async function loadStats() {
+    const r = await fetch(`${API}/admin/dashboard-stats`, { credentials: "include" });
+    if (!r.ok) return;
+
+    const d = await r.json();
+    if (!d.success || !d.stats) return;
+
+    document.getElementById("total-scans").textContent = d.stats.total_scans ?? 0;
+    document.getElementById("total-threats").textContent = d.stats.total_threats ?? 0;
+    document.getElementById("total-users").textContent = d.stats.total_users ?? 0;
+    document.getElementById("detection-accuracy").textContent =(d.stats.detection_accuracy ?? 0) + "%";
+}
+
+
+/* ---------------- ACTIVITY ---------------- */
+async function loadActivity() {
+    const r = await fetch(`${API}/admin/recent-activity`, { credentials: "include" });
+    if (!r.ok) return;
+
+    const d = await r.json();
+    const el = document.getElementById("activity-timeline");
+
+    if (!d.success || !Array.isArray(d.activities) || d.activities.length === 0) {
+        el.innerHTML = "No activity";
+        return;
+    }
+
+    el.innerHTML = "";
+    d.activities.forEach(a => {
+        el.innerHTML += `<div>${a.message} — ${a.timestamp ?? ""}</div>`;
+
+
+    });
+}
+
+/* ---------------- THREATS ---------------- */
+async function loadThreats() {
+    try {
+        const r = await fetch(`${API}/admin/threats`, {
+            credentials: "include"
+        });
+
+        if (!r.ok) {
+            console.error("Failed to fetch threats:", r.status);
+            return;
+        }
+
+        const d = await r.json();
+
+        const container = document.getElementById("threat-list");
+        if (!container) return;
+
+        // Validate backend response
+        if (!d.success || !Array.isArray(d.threats) || d.threats.length === 0) {
+            container.innerHTML = "<div>No threats detected</div>";
+            return;
+        }
+
+        container.innerHTML = "";
+
+        d.threats.forEach(t => {
+            container.innerHTML += `
+                <div class="threat-item ${t.severity || 'low'}">
+                    <strong>${t.type}</strong>
+                    <p>${t.description}</p>
+                    <small>
+                        Score: ${t.score ?? 0} |
+                        Detected: ${t.time}
+                    </small>
+                </div>
+            `;
+        });
+
+    } catch (err) {
+        console.error("Threat loading error:", err);
+    }
+}
+
+
+
+/* ---------------- USERS ---------------- */
+async function loadUsers() {
+    const r = await fetch(`${API}/admin/users`, { credentials: "include" });
+    if (!r.ok) return;
+
+    const d = await r.json();
+    const tbody = document.getElementById("users-tbody");
+
+    // Validate backend response
+    if (!d.success || !Array.isArray(d.users) || d.users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">No users found</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = "";
+
+    d.users.forEach(u => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${u.name ?? "-"}</td>
+                <td>${u.email ?? "-"}</td>
+                <td>${u.joining_date ?? "-"}</td>
+                <td>${u.last_active ?? "-"}</td>
+                <td>${u.status ?? "inactive"}</td>
+            </tr>
+        `;
+    });
+}
+
+
+
+/* ---------------- LOGOUT ---------------- */
+/* LOGOUT */
+function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/login';
+            }
+        }
+/* ---------------- INIT ---------------- */
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadStats();
+    await loadActivity();
+    await loadThreats();
+    await loadUsers();
+
+    setInterval(() => {
+        loadStats();
+        loadActivity();
+        loadThreats();
+        loadUsers();
+    }, 30000);
+});
+</script>
+
+</body>
+</html>
